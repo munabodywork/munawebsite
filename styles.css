@@ -1,0 +1,620 @@
+  /* ─────────────────────────────────────────────────────────────
+     Muna Bodywork — tokens
+     Single-theme. Every colour resolves from this block, and the two
+     panel classes below redefine the same token NAMES — so a component
+     inverts automatically on a coloured band without any component CSS
+     knowing which surface it is sitting on.
+     ───────────────────────────────────────────────────────────── */
+  :root {
+    /* Near-monochromatic: bone paper and olive, every value within
+       ~10deg of hue 122. Emphasis is carried by ITALIC and by large
+       fields of olive, never by a contrasting accent hue.
+       Green dominates by AREA rather than saturation — the two coloured
+       bands and the primary button are all the olive, so it is the
+       loudest thing on the page without a single bright pop. */
+    --paper:       #EFEAE0;   /* warm bone */
+    --paper-glow:  #F7F5F0;   /* cooler lift behind the masthead */
+    --olive:       #4F5A3E;   /* the mid band + primary button — 6.11:1 */
+    --forest:      #2A3122;   /* deepest band, and ink on paper */
+    --olive-mid:   #576144;   /* marks on paper        — 5.48:1 */
+    --olive-pale:  #B9C49A;   /* marks on the bands    — 3.99 / 7.32:1 */
+
+    /* Surface-relative. Ratios are worst-case across the two bone tones
+       the page actually paints — the base and the masthead glow. The
+       panel classes redefine every one of these. */
+    --surface:     var(--paper);
+    --ink:         var(--forest);   /* 11.22:1 */
+    --ink-2:       #5A6249;         /*  5.34:1 */
+    --rule:        #B5AF9B;         /*  1.83:1 — decorative divider */
+    --rule-strong: #847F6A;         /*  3.35:1 — ghost button border */
+    --mark:        var(--olive-mid);
+    --btn-bg:      var(--olive);
+    --btn-fg:      var(--paper);    /*  6.11:1 label on the button */
+    --grain:       0.05;
+
+    /* floor raised from 0.78rem: 12.5px was too small for the sentences
+       in the booking steps once they were the same face as everything */
+    --step--1: clamp(0.82rem, 0.8rem + 0.1vw, 0.88rem);
+    --step-0:  clamp(1rem, 0.97rem + 0.16vw, 1.09rem);
+    --step-1:  clamp(1.2rem, 1.12rem + 0.4vw, 1.45rem);
+    --step-2:  clamp(1.6rem, 1.4rem + 1vw, 2.3rem);
+    /* sized for a grotesque: its large x-height means it reads bigger
+       than a high-contrast serif would at the same font-size */
+    --step-3:  clamp(2rem, 1.55rem + 2.1vw, 3.2rem);
+    --step-4:  clamp(2.6rem, 1.5rem + 5.2vw, 5.6rem);
+
+    --gutter: clamp(1.35rem, 4vw, 5rem);
+    --shell: 1180px;
+    --measure: 34rem;
+
+    /* Single-theme by intent: the page paints every colour explicitly
+       and ignores the viewer's light/dark preference. */
+    color-scheme: light;
+  }
+
+  /* ── coloured bands ───────────────────────────────────────────
+     Both are dark enough that bone body copy clears 4.5:1. The
+     reference board's lighter olive sits at L* 49, where small bone
+     text would reach only 3.82:1 — fine on a mood board, not on a
+     page someone has to read. */
+  .panel-olive {
+    --surface:     var(--olive);
+    --ink:         var(--paper);    /*  6.11:1 */
+    --ink-2:       #DCD8C8;         /*  5.13:1 */
+    --rule:        #78855E;         /*  1.86:1 */
+    --rule-strong: #A8B18C;         /*  3.26:1 */
+    --mark:        var(--olive-pale);
+    --btn-bg:      var(--paper);
+    --btn-fg:      var(--olive);    /*  6.11:1 */
+    background: var(--surface);
+    /* MUST be re-declared, not just re-tokenised: `color` inherits as a
+       COMPUTED value, so without this line the forest ink resolved back at
+       `body` cascades into the band and headings land at 1.84:1. */
+    color: var(--ink);
+  }
+
+  .panel-deep {
+    --surface:     var(--forest);
+    --ink:         var(--paper);    /* 11.22:1 */
+    --ink-2:       #DCD8C8;         /*  9.42:1 */
+    --rule:        #4C5740;         /*  1.76:1 */
+    --rule-strong: #78855E;         /*  3.41:1 */
+    --mark:        var(--olive-pale);
+    --btn-bg:      var(--paper);
+    --btn-fg:      var(--forest);   /* 11.22:1 */
+    background: var(--surface);
+    /* same as above — and worse here: forest ink on the forest band is
+       1.00:1, which is what made "Come as you are." invisible. */
+    color: var(--ink);
+  }
+
+  /* ── base ──────────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    /* a faint warm lift behind the masthead keeps the deep ground from
+       reading as flat black */
+    background-color: var(--paper);
+    background-image: radial-gradient(150% 100% at 50% -20%, var(--paper-glow) 0%, transparent 55%);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    color: var(--ink);
+    font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+    font-size: var(--step-0);
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+    /* clip, not hidden: `hidden` would make body a scroll container and
+       break the sticky masthead. */
+    overflow-x: clip;
+  }
+
+  /* paper tooth over the whole page */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    pointer-events: none;
+    opacity: var(--grain);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  h1, h2, h3, blockquote, p, figure { margin: 0; }
+  ul { margin: 0; padding: 0; list-style: none; }
+  a { color: inherit; }
+
+  /* the ring is drawn in the current surface's ink, so it works on all
+     three surfaces without an override: 11.22:1 on paper, 6.11:1 on the
+     olive band, 11.22:1 on the deep band */
+  :focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 4px;
+    border-radius: 2px;
+  }
+
+  .sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+  /* ── type roles ────────────────────────────────────────────────
+     ONE family for the whole page. No rule below this point declares a
+     font-family — everything inherits Instrument Sans from `body`, so
+     there is no second face to fall out of sync. With no typeface
+     contrast to lean on, hierarchy is built from four levers only:
+     size, weight (400/500/600 of a 400–700 variable range), tracking,
+     and colour. Tracking does most of the work — it opens up as type
+     gets smaller and tightens as it gets larger. */
+  .display {
+    font-weight: 400;
+    line-height: 1.06;
+    /* a grotesque at display size needs real negative tracking; at 400
+       the loose default would read as unset rather than deliberate */
+    letter-spacing: -0.028em;
+    text-wrap: balance;
+  }
+
+  /* Italic alone, no colour shift — same as the reference board, which
+     emphasises inside a sentence without ever changing its colour. */
+  .display em { font-style: italic; }
+
+  .eyebrow {
+    font-size: var(--step--1);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    font-weight: 500;
+    color: var(--ink-2);
+  }
+
+  /* Marginalia: italic, one step under body, in the secondary ink. In a
+     single-family page these three signals together are what keep an
+     aside from reading as body copy. */
+  .aside {
+    font-style: italic;
+    font-size: 0.98rem;
+    line-height: 1.4;
+    color: var(--ink-2);
+  }
+
+  .lede {
+    font-size: var(--step-1);
+    line-height: 1.5;
+    color: var(--ink-2);
+    max-width: 30rem;
+  }
+
+  .lede em {
+    font-weight: 500;
+    font-style: italic;
+    color: var(--ink);
+  }
+
+  /* ── shell + the live right margin ─────────────────────────── */
+  .shell {
+    width: min(var(--shell), 100%);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  /* Marginalia lives in the right gutter, like notes on a journal
+     page. It only exists where there is actually margin to spare. */
+  .margin-note { display: none; }
+
+  @media (min-width: 62rem) {
+    /* positioned against the shell's content edge, not the viewport */
+    .has-margin > .shell { position: relative; }
+
+    .margin-note {
+      display: flex;
+      gap: 0.5rem;
+      align-items: flex-start;
+      position: absolute;
+      right: var(--gutter);
+      width: 12.5rem;
+    }
+    .margin-note svg { flex: none; color: var(--mark); margin-top: 0.45rem; }
+  }
+
+  /* ── buttons ───────────────────────────────────────────────── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font: inherit;
+    font-weight: 500;
+    text-decoration: none;
+    padding: 0.85rem 1.5rem;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    transition: transform 200ms ease, background-color 200ms ease, border-color 200ms ease, color 200ms ease;
+  }
+
+  .btn-primary {
+    background: var(--btn-bg);
+    color: var(--btn-fg);
+    /* hand-cut, not a pill: each corner slightly different */
+    border-radius: 42% 58% 55% 45% / 52% 48% 52% 48%;
+    padding: 0.95rem 1.9rem;
+  }
+
+  .btn-primary:hover { transform: translateY(-2px) rotate(-0.8deg); }
+
+  .btn-ghost {
+    border-color: var(--rule-strong);
+    color: var(--ink);
+  }
+
+  /* stays neutral: green is the primary button's signature, and two
+     green buttons would flatten the hierarchy */
+  .btn-ghost:hover { border-color: var(--ink-2); color: var(--ink); }
+
+  .btn-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.9rem;
+  }
+
+  /* ── masthead ──────────────────────────────────────────────── */
+  .masthead {
+    position: sticky;
+    top: 0;
+    z-index: 80;
+    background: var(--surface);
+    background: color-mix(in oklab, var(--surface) 88%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid transparent;
+    transition: border-color 300ms ease;
+  }
+
+  .masthead[data-stuck="true"] { border-bottom-color: var(--rule); }
+
+  .masthead > .shell {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 1.1rem;
+  }
+
+  .wordmark {
+    display: block;
+    width: 5.6rem;
+    height: auto;
+    color: var(--ink);
+  }
+
+  .masthead a.wordmark-link { display: block; line-height: 0; }
+
+  .masthead nav {
+    display: flex;
+    align-items: center;
+    gap: clamp(1rem, 2.5vw, 2.2rem);
+  }
+
+  .navlink {
+    font-size: var(--step--1);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    text-decoration: none;
+    color: var(--ink-2);
+    transition: color 180ms ease;
+  }
+
+  .navlink:hover { color: var(--ink); }
+
+  @media (max-width: 46rem) { .navlink { display: none; } }
+
+  .masthead .btn { padding: 0.6rem 1.15rem; font-size: var(--step--1); }
+
+  /* ── hero ──────────────────────────────────────────────────── */
+  .hero {
+    padding-block: clamp(4rem, 11vh, 8.5rem) clamp(3.5rem, 8vh, 6rem);
+  }
+
+  .hero-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 1.9rem;
+    max-width: 46rem;
+  }
+
+  .hero h1 {
+    font-size: var(--step-4);
+  }
+
+  /* ── wobbly rules ──────────────────────────────────────────── */
+  .rule {
+    display: block;
+    width: 100%;
+    height: 12px;
+    color: var(--rule);
+    overflow: visible;
+  }
+
+  .rule path {
+    stroke-dasharray: 1250;
+    stroke-dashoffset: 1250;
+    transition: stroke-dashoffset 1400ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .rule[data-drawn="true"] path { stroke-dashoffset: 0; }
+
+  /* ── sections ──────────────────────────────────────────────── */
+  .band { padding-block: clamp(3.5rem, 9vh, 7rem); }
+
+  .band-head {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    margin-bottom: clamp(2rem, 5vh, 3.2rem);
+  }
+
+  .band-head h2 { font-size: var(--step-3); max-width: 26rem; }
+
+  /* ── mission: single column, editorial ─────────────────────── */
+  .prose {
+    display: flex;
+    flex-direction: column;
+    gap: 1.4rem;
+    max-width: var(--measure);
+  }
+
+  .prose p { color: var(--ink-2); }
+  .prose p strong { color: var(--ink); font-weight: 600; }
+
+  .pull {
+    font-weight: 400;
+    font-style: italic;
+    font-size: var(--step-2);
+    line-height: 1.3;
+    letter-spacing: -0.015em;
+    color: var(--ink);
+    border-left: 2px solid var(--mark);
+    padding-left: 1.2rem;
+    margin-block: 0.6rem;
+  }
+
+  /* ── service index ─────────────────────────────────────────── */
+  .index { border-top: 1px solid var(--rule); }
+
+  .index li { border-bottom: 1px solid var(--rule); }
+
+  .index a {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.3rem 2.5rem;
+    padding-block: clamp(1.4rem, 3vw, 2rem);
+    text-decoration: none;
+    transition: color 200ms ease;
+  }
+
+  @media (min-width: 48rem) {
+    .index a { grid-template-columns: minmax(0, 19rem) minmax(0, 1fr) auto; align-items: baseline; }
+  }
+
+  .index h3 {
+    font-weight: 500;
+    font-size: var(--step-2);
+    line-height: 1.15;
+    letter-spacing: -0.018em;
+    transition: color 200ms ease;
+  }
+
+  .index .relief { color: var(--ink-2); max-width: 30rem; }
+
+  .index .duration {
+    font-size: var(--step--1);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .index a:hover h3 { color: var(--mark); }
+
+  /* ── care circle ───────────────────────────────────────────── */
+  .circle-grid {
+    display: grid;
+    gap: clamp(1.8rem, 5vw, 4rem);
+  }
+
+  @media (min-width: 54rem) {
+    .circle-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
+  }
+
+  /* ── women's network accordion ───────────────────────────────
+     Native <details>/<summary> — no JS needed. Each category expands
+     to a short panel where recommended providers get linked in later. */
+  .network-list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .network-item {
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .network-item summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.85rem;
+    padding-block: clamp(0.9rem, 2vw, 1.15rem);
+    font-size: var(--step-1);
+    font-weight: 400;
+    letter-spacing: -0.008em;
+    color: var(--ink);
+    cursor: pointer;
+    list-style: none;
+    transition: color 200ms ease;
+  }
+
+  .network-item summary::-webkit-details-marker { display: none; }
+
+  .network-item summary:hover { color: var(--mark); }
+
+  .network-chevron {
+    flex: none;
+    width: 0.85rem;
+    color: var(--mark);
+    transform: rotate(90deg);
+    transition: transform 220ms ease;
+  }
+
+  .network-item[open] .network-chevron { transform: rotate(-90deg); }
+
+  .network-panel {
+    padding-bottom: clamp(0.9rem, 2vw, 1.15rem);
+    font-size: var(--step-0);
+    color: var(--ink-2);
+  }
+
+  .network-provider {
+    color: var(--mark);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  /* ── book ──────────────────────────────────────────────────── */
+  /* ── booking band: dappled leaf-shadow photograph ─────────────
+     The photograph is a light chartreuse green. Bone type straight over
+     it measures 1.17:1 at its brightest pixel — unreadable. So it sits
+     under an 82% forest scrim, and that alpha was solved against the
+     brightest pixel in the WHOLE asset rather than an average, so it
+     holds at every crop and every viewport:
+         --ink  bone #EFEAE0   6.36:1   (needs 4.5)
+         --ink-2     #DCD8C8   5.34:1   (needs 4.5)
+         --mark  step dots     4.15:1   (needs 3.0 as graphical objects)
+     18% of the photograph reads through — enough for the dapple to
+     register as texture while every .panel-deep token stays valid.
+     The scrim is mixed from --forest rather than hard-coded, so it
+     tracks the token. If color-mix were unsupported the whole
+     background-image declaration is dropped and the band falls back to
+     flat --forest: the previous design, never bright photo under bone
+     type. */
+  .book {
+    padding-block: clamp(4rem, 12vh, 8rem);
+    text-align: left;
+    background-image:
+      linear-gradient(color-mix(in srgb, var(--forest) 82%, transparent),
+                      color-mix(in srgb, var(--forest) 82%, transparent)),
+      url("dapple.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .book-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 1.6rem;
+    max-width: 40rem;
+  }
+
+  .book h2 { font-size: var(--step-4); }
+
+  .book .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    padding-top: 0.6rem;
+    color: var(--ink-2);
+  }
+
+  .book .steps li { display: flex; gap: 0.7rem; }
+  .book .steps svg { flex: none; width: 0.9rem; color: var(--mark); margin-top: 0.42rem; }
+
+  /* ── footer ────────────────────────────────────────────────── */
+  .foot { padding-block: 2.6rem 3.2rem; }
+
+  .foot > .shell {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.6rem 2.5rem;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+
+  .foot .wordmark { width: 4.4rem; color: var(--ink-2); }
+
+  .foot p { font-size: var(--step--1); color: var(--ink-2); }
+
+  /* ── load sequence ─────────────────────────────────────────── */
+  .rise { opacity: 0; transform: translateY(0.7rem); }
+
+  .ready .rise {
+    animation: rise 900ms cubic-bezier(0.2, 0.75, 0.2, 1) forwards;
+    animation-delay: var(--d, 0ms);
+  }
+
+  @keyframes rise {
+    to { opacity: 1; transform: none; }
+  }
+
+  /* reveal on scroll */
+  .reveal { opacity: 0; transform: translateY(1.1rem); transition: opacity 800ms ease, transform 800ms cubic-bezier(0.2, 0.75, 0.2, 1); }
+  .reveal[data-seen="true"] { opacity: 1; transform: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rise, .ready .rise { opacity: 1; transform: none; animation: none; }
+    .reveal { opacity: 1; transform: none; transition: none; }
+    .rule path { stroke-dashoffset: 0; transition: none; }
+    .btn, .btn-primary:hover { transition: none; transform: none; }
+  }
+
+  /* opt-in rather than opt-out: a `*` reset would lose to `html` on
+     specificity no matter where it sits in the sheet. */
+  @media (prefers-reduced-motion: no-preference) {
+    html { scroll-behavior: smooth; }
+  }
+
+  /* ── journal: book recommendations ────────────────────────────
+     Soft gradient panels, no hard rule borders — this page stays
+     flowing rather than tabular. */
+  .book-grid {
+    display: grid;
+    gap: clamp(1.1rem, 3vw, 1.6rem);
+  }
+
+  @media (min-width: 40rem) {
+    .book-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  @media (min-width: 62rem) {
+    .book-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+
+  .book-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: clamp(1.5rem, 3.5vw, 2rem);
+    border-radius: 1.1rem;
+    background-image: linear-gradient(165deg, var(--paper-glow) 0%, var(--paper) 55%, color-mix(in srgb, var(--olive) 12%, var(--paper)) 100%);
+  }
+
+  .book-card .eyebrow { margin-bottom: 0.1rem; }
+
+  .book-card h3 {
+    font-size: var(--step-1);
+    font-weight: 500;
+    letter-spacing: -0.012em;
+    color: var(--ink);
+  }
+
+  .book-card .author {
+    font-size: var(--step--1);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+
+  .book-card p { color: var(--ink-2); }
+
+  /* soft standalone panel for page intros — no border, just a lift */
+  .soft-panel {
+    border-radius: 1.4rem;
+    padding: clamp(1.8rem, 5vw, 3rem);
+    background-image: radial-gradient(120% 140% at 15% 0%, var(--paper-glow) 0%, transparent 60%),
+      linear-gradient(180deg, transparent 0%, color-mix(in srgb, var(--olive) 6%, transparent) 100%);
+  }
